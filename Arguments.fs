@@ -5,11 +5,17 @@ open Argu
 type Dithering = 
     | FloydSteinberg = 1 
     | Atkinson = 2
+    | Jarvis = 3
+    | Sierra = 4
+    | Bayer = 4
 
 let parseAlgorithm (algorithm: Dithering) = 
     match int algorithm with
     | 1 -> Dithering.floydSteinberg
     | 2 -> Dithering.atkinson
+    | 3 -> Dithering.jarvis
+    | 4 -> Dithering.sierra
+    | 5 -> Dithering.bayer
     | _ -> failwith "invalid dithering algorithm"
 
 type CliArguments =
