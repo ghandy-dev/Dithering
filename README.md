@@ -3,7 +3,10 @@ I was writing a feature for another program to dither an image and set up a sepa
 
 # Dithering
 
-Dithering is the process of adding noise to an image (often using error diffusion). A quantization error is distributed to nearby neighbours of a pixel. We end up with a dithered image with the commonly seen checkerboard dotted "noise" patterns emerging.
+Dithering is the process of adding noise to an image. 
+There are 2 approaches:
+  - Error diffusion dithering: A quantization error (the difference between the old pixel and the new pixel) is distributed to nearby neighbours of a pixel that haven't been processed yet (e.g. Floyd-Steinberg Dithering)
+  - Ordered dithering: Uses a pre-calculated threshold map to determine how to quantize it each pixel in the image. (e.g. Bayer Dithering).
 
 ## Floyd-Steinberg
 
@@ -28,21 +31,34 @@ for y in 0 .. bitmap.Height - 1 do
         |> List.iter (fun (x, y, factor) -> addError bitmap x y quantError factor)
 ```
 
-Below is a few examples of images I dithered using Floyd-Steinberg dithering. Different methods are available to reduce the colour palette, but for what I wanted black-and-white dithering was perfect.
+Below is a few examples of images I dithered using Floyd-Steinberg dithering. Different methods are available for selecting the pixel colors for dithering (usually some colour pallet of a few common colours), but for what I wanted black-and-white dithering was perfect.
 
 ![Statue of David dithered](./assets/floydsteinberg.png)
 ![Astro cat dithered](./assets/astrocat.png)
 ![Dark Souls Estus Flask dithered](./assets/flask.png)
 ![Super Mario Bros. 3 dithered](./assets/mario.png)
 
-## Other Algorithms
+### Other Error Diffusion Algorithms
 
-There are many other dithering algorithms - some very similar and based on the same principle as Floyd-Steinberg 
+There are many other error dithering algorithms based on the same technique as used in Floyd-Steinberg.
  - Atkinson - A variant of Floyd-Steinberg that diffuses ¾ of the quantization error to neighbours. Preserving detail better, but at the cost of performance to near-white or near-black areas. 
  - Jarvis, Judice, and Ninke independently came up with the same error diffusion dithering, but diffused the quantization error to a wider range of neighbours. 
+ - Sierra, using diffusing the error over 2 rows.
  - And more with pros and cons to the output and performance.
 
+# Comparison
+
+| Algorithm                   | Image                                                               |
+|-----------------------------|---------------------------------------------------------------------|
+| Atkinson                    | ![Atkinson Dithering](./assets/comparison/atkinson.png)             |
+| Bayer                       | ![Bayer Dithering](./assets/comparison/bayer.png)                   |
+| Floyd-Steinberg             | ![Floyd-Steinberg Dithering](./assets/comparison/floydsteinberg.png)|
+| Jarvis                      | ![Jarvis Dithering](./assets/comparison/jarvis.png)                 |
+| Sierra                      | ![Sierra Dithering](./assets/comparison/sierra.png)                 |
+
 # Running
+
+Can be run with just `dotnet run`. Options and examples below
 
 ``` 
 USAGE: ls [--help] --input-file <PATH> [--dithering-algorithm <floydsteinberg|atkinson>] [--output-path <PATH>]
