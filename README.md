@@ -31,6 +31,10 @@ for y in 0 .. bitmap.Height - 1 do
         |> List.iter (fun (x, y, factor) -> addError bitmap x y quantError factor)
 ```
 
+Timelapse of Floyd-Steinberg Dithering:
+
+https://github.com/user-attachments/assets/48beaa15-9e4e-486d-a916-9282aace5958
+
 Below is a few examples of images I dithered using Floyd-Steinberg dithering. Different methods are available for selecting the pixel colors for dithering (usually some colour pallet of a few common colours), but for what I wanted black-and-white dithering was perfect.
 
 ![Statue of David dithered](./assets/floydsteinberg.png)
