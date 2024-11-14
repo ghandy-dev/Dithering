@@ -127,7 +127,6 @@ let bayer (bitmap: SKBitmap) =
                 bitmap.SetPixel(x, y, new SKColor(0uy, 0uy, 0uy))
 
 let floydSteinberg (bitmap: SKBitmap) =
-    // requires going left to right, from top to bottom
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
@@ -135,7 +134,6 @@ let floydSteinberg (bitmap: SKBitmap) =
             bitmap.SetPixel(x, y, newPixel)
             let quantError = difference oldPixel newPixel
 
-            // distribute the "error" to neighbouring unvisited pixels to deal with later
             [ x + 1,  y,      7.0 / 16.0
               x - 1,  y + 1,  3.0 / 16.0
               x,      y + 1,  5.0 / 16.0
