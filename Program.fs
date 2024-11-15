@@ -8,35 +8,38 @@ open Argu
 
 open SkiaSharp
 
-let loadImage (path: string) =
+let loadImage (filepath: string) =
     task {
-        let! bytes = File.ReadAllBytesAsync(path)
-        return SKBitmap.Decode(bytes)
+        try 
+            let! bytes = File.ReadAllBytesAsync(filepath)
+            return Some (SKBitmap.Decode(bytes))
+        with 
+        | :? System.IO.FileNotFoundException -> printfn $"""File "{filepath}" not found""" ; return None
+        | ex -> printfn $"Failed to read file: {ex.Message}" ; return None
     }
 
 let saveImage (bitmap: SKBitmap) (outputPath: string) =
     task {
         return!
             Task.Run(fun _ ->
-                use stream = File.OpenWrite(outputPath)
-                let data = bitmap.Encode(SKEncodedImageFormat.Png, 80)
-                data.SaveTo(stream)
-                printfn "File saved to %s" outputPath
+                try
+                    use stream = File.OpenWrite(outputPath)
+                    let data = bitmap.Encode(SKEncodedImageFormat.Png, 100)
+                    data.SaveTo(stream)
+                    printfn $"File saved to %s{outputPath}"
+                with ex ->
+                    printfn $"Failed to save image: {ex.Message}"
             )
     }
 
-let run (filepath: string) (outputPath: string) (algo: SKBitmap -> unit) =
+let run (inputFilepath: string) (outputFilepath: string) (algo: SKBitmap -> unit) =
     task {
-        use! bitmap = loadImage filepath
-        algo bitmap
-
-        let filename =
-            sprintf "%s\%s_%s.png"
-                outputPath
-                (Path.GetFileNameWithoutExtension(filepath))
-                (DateTime.Now.ToString("yyyyMMddHHmmss"))
-
-        do! saveImage bitmap filename
+        match! loadImage inputFilepath with
+        | None -> ()
+        | Some bitmap -> 
+            use _ = bitmap
+            algo bitmap
+            do! saveImage bitmap outputFilepath
     }
 
 [<EntryPoint>]
@@ -46,11 +49,15 @@ let main args =
         let parser = ArgumentParser.Create<CliArguments>(programName = "ls", errorHandler = errorHandler)
         let results = parser.ParseCommandLine args
 
-        let filePath = results.GetResult(Input_File)
+        let inputFile = results.GetResult(Input_File)
         let algorithm = defaultArg (results.TryGetResult(Dithering_Algorithm) |> Option.bind (fun d -> Some (parseAlgorithm d))) Dithering.floydSteinberg
         let outputPath = defaultArg (results.TryGetResult(Output_Path)) (Environment.GetFolderPath(Environment.SpecialFolder.MyPictures))
+        let outputFile = 
+            defaultArg (results.TryGetResult(Output_File)) $"""%s{Path.GetFileNameWithoutExtension(inputFile)}_%s{DateTime.Now.ToString("yyyyMMddHHmmss")}"""
+            |> fun file -> Path.ChangeExtension(file, ".png")
+        let outputFilepath = Path.Join(outputPath, outputFile)
 
-        do! run filePath outputPath algorithm
+        do! run inputFile outputFilepath algorithm
         
         return 0
     }

@@ -22,6 +22,7 @@ type CliArguments =
     | [<Mandatory; AltCommandLine("-i")>] Input_File of PATH: string
     | [<Unique; AltCommandLine("-da")>] Dithering_Algorithm of Dithering // optional
     | [<Unique; AltCommandLine("-o")>] Output_Path of PATH: string  // optional
+    | [<Unique; AltCommandLine("-f")>] Output_File of FILENAME: string  // optional
 
     interface IArgParserTemplate with
         member arg.Usage =
@@ -29,3 +30,4 @@ type CliArguments =
             | Input_File _ -> "specify an input file to dither."
             | Dithering_Algorithm _ -> "specify a dithering algorith to use (default: floydsteinberg)."
             | Output_Path _ -> "specify a custom output path for the dithered image (default: My Pictures)."
+            | Output_File _ -> "specify a custom file output name (default: input filename + a datetime timestamp)."
