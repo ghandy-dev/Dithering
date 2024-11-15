@@ -62,22 +62,32 @@ There are many other error dithering algorithms based on the same technique as u
 
 # Running
 
-Can be run with just `dotnet run`. Options and examples below
+- Run directly using dotnet.
+  - `dotnet run -i "C:\image.png" `
+
+- Build and run the .exe
+  - `dotnet build -c Release` 
+  - `/Dithering/bin/Release/net8.0/Dithering.exe -i C:\image.png -f dithered_image.png`
+
+Options and examples below
 
 ``` 
-USAGE: ls [--help] --input-file <PATH> [--dithering-algorithm <floydsteinberg|atkinson>] [--output-path <PATH>]
+USAGE: ls [--help] --input-file <PATH> [--dithering-algorithm <floydsteinberg|atkinson|jarvis|sierra|bayer>] [--output-path <PATH>] [--output-file <FILENAME>]
 
 OPTIONS:
 
     --input-file, -i <PATH>
                           specify an input file to dither.
-    --dithering-algorithm, -da <floydsteinberg|atkinson>
+    --dithering-algorithm, -da <floydsteinberg|atkinson|jarvis|sierra|bayer>
                           specify a dithering algorith to use (default: floydsteinberg).
     --output-path, -o <PATH>
                           specify a custom output path for the dithered image (default: My Pictures).
+    --output-file, -f <FILENAME>
+                          specify a custom file output name (default: input filename + a datetime timestamp).
     --help                display this list of options.
 
 dotnet run -i "C:\image.png" 
 dotnet run -i "C:\image.png" -da floydsteinberg
 dotnet run -i "C:\image.png" -o "D:\Images\"
+dotnet run -i "C:\image.png" -o "D:\Images\" --output-file dithered_image.png
 ```
