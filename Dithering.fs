@@ -14,24 +14,13 @@ let private getPixelLuminance (pixel: SKColor) =
     0.7152 * float pixel.Green +
     0.0722 * float pixel.Blue |> int
 
-let private findClosestPaletteColor (pixel: SKColor) =
-    // convert to greyscale and calculate luminance 
+let private findClosestPaletteColor (pixel: SKColor) (threshold: int) =
     let luminance = getPixelLuminance pixel
 
-    if luminance > 128 then
+    if luminance > threshold then
         new SKColor(255uy, 255uy, 255uy)
     else
         new SKColor(0uy, 0uy, 0uy)
-
-// let private findClosestPaletteColor (pixel: SKColor) =
-//     let round = fun v -> if v > 128.0 then 255 else 0
-
-//     let r, g, b =
-//         round (float pixel.Red) |> byte,
-//         round (float pixel.Green) |> byte,
-//         round (float pixel.Blue) |> byte
-
-//     new SKColor(r, g, b)
 
 let private addError (bitmap: SKBitmap) (x: int) (y: int) (error: float * float * float) (factor: float) =
     if x >= 0 && x < bitmap.Width && y >= 0 && y < bitmap.Height then
@@ -48,7 +37,7 @@ let atkinson (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let newPixel = findClosestPaletteColor oldPixel
+            let newPixel = findClosestPaletteColor oldPixel 128
             bitmap.SetPixel(x, y, newPixel)
             let quantError = difference oldPixel newPixel
             let factor = 1.0 / 8.0
@@ -65,7 +54,7 @@ let jarvis (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let newPixel = findClosestPaletteColor oldPixel
+            let newPixel = findClosestPaletteColor oldPixel 128
             bitmap.SetPixel(x, y, newPixel)
             let quantError = difference oldPixel newPixel
 
@@ -87,7 +76,7 @@ let sierra (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let newPixel = findClosestPaletteColor oldPixel
+            let newPixel = findClosestPaletteColor oldPixel 128
             bitmap.SetPixel(x, y, newPixel)
             let quantError = difference oldPixel newPixel
 
@@ -118,19 +107,15 @@ let bayer (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let newPixel = getPixelLuminance oldPixel
             let threshold = bayerMatrix[y % bayerMatrix.Length][x % bayerMatrix.Length]
-
-            if newPixel > threshold then
-                bitmap.SetPixel(x, y, new SKColor(255uy, 255uy, 255uy))
-            else
-                bitmap.SetPixel(x, y, new SKColor(0uy, 0uy, 0uy))
+            let newPixel = findClosestPaletteColor oldPixel threshold
+            bitmap.SetPixel(x, y, newPixel)
 
 let floydSteinberg (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let newPixel = findClosestPaletteColor oldPixel
+            let newPixel = findClosestPaletteColor oldPixel 128
             bitmap.SetPixel(x, y, newPixel)
             let quantError = difference oldPixel newPixel
 
