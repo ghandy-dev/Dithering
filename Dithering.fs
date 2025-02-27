@@ -107,7 +107,7 @@ let bayer (bitmap: SKBitmap) =
     for y in 0 .. bitmap.Height - 1 do
         for x in 0 .. bitmap.Width - 1 do
             let oldPixel = bitmap.GetPixel(x, y)
-            let threshold = bayerMatrix[y % bayerMatrix.Length][x % bayerMatrix.Length]
+            let threshold = bayerMatrix[y % bayerMatrix.Length][x % bayerMatrix.Length] * 255 / 64
             let newPixel = findClosestPaletteColor oldPixel threshold
             bitmap.SetPixel(x, y, newPixel)
 

@@ -7,7 +7,7 @@ type Dithering =
     | Atkinson = 2
     | Jarvis = 3
     | Sierra = 4
-    | Bayer = 4
+    | Bayer = 5
 
 let parseAlgorithm (algorithm: Dithering) = 
     match int algorithm with
